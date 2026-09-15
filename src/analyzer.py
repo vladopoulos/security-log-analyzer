@@ -1,6 +1,8 @@
 from parser import parse_log_line
 
 LOG_FILE = "logs/sample_uth.log"
+BRUTE_FORCE_THRESHOLD = 3
+BRUTE_FORCE_WINDOW_SECONDS = 60
 
 def load_logs(file_path):
     logs = []
@@ -14,12 +16,29 @@ def load_logs(file_path):
 
     return logs
 
+def detect_brute_force(timestamps):
+    if len(timestamps) < BRUTE_FORCE_THRESHOLD:
+        return False
+
+    for i in range(len(timestamps) - BRUTE_FORCE_THRESHOLD + 1):
+        start_time = timestamps[i]
+        end_time = timestamps[i + BRUTE_FORCE_THRESHOLD - 1]
+
+        time_difference = (end_time - start_time).total_seconds()
+
+        if time_difference <= BRUTE_FORCE_WINDOW_SECONDS:
+            return True
+
+    return False
+
 def main():
     logs = load_logs(LOG_FILE)
 
     successful_logins = 0
     failed_logins = 0
     failed_attempts_by_ip = {}
+    suspicious_ips = []
+    failed_attempts_by_username = {}
 
     for log in logs:
         if log["event"] == "LOGIN_SUCCESS":
@@ -31,9 +50,18 @@ def main():
             ip = log["ip"]
 
             if ip not in failed_attempts_by_ip:
-                failed_attempts_by_ip[ip] = 0
+                failed_attempts_by_ip[ip] = []
 
-            failed_attempts_by_ip[ip] +=1
+            failed_attempts_by_ip[ip].append(log["timestamp"])
+
+            username = log["username"]
+            
+            if username not in failed_attempts_by_username:
+                failed_attempts_by_username[username] = 0
+            
+            failed_attempts_by_username[username] += 1
+
+
 
     print("Security Log Analyzer")
     print("=====================")
@@ -43,8 +71,21 @@ def main():
 
     print("\nFailed login attempts by IP:")
 
-    for ip, count in failed_attempts_by_ip.items():
-        print(f"{ip}: {count}")
+    for ip, timestamps in failed_attempts_by_ip.items():
+        count = len(timestamps)
+
+        if detect_brute_force(timestamps):
+            suspicious_ips.append(ip)
+            print(f"{ip}: {count} failed attempts - SUSPICIOUS")
+        else:
+            print(f"{ip}: {count} failed attempts")
+
+    print(f"\nSuspicious IPs detected: {len(suspicious_ips)}")
+
+    print("\nFailed login attempts by username:")
+
+    for username, count in failed_attempts_by_username.items():
+            print(f"{username}: {count} failed attempts")
 
 if __name__ == "__main__" :
     main()
