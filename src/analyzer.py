@@ -1,5 +1,6 @@
 from parser import parse_log_line
 from reporter import print_summary, print_ip_analysis, print_username_analysis, print_suspicious_usernames
+from report_generator import generate_report
 
 LOG_FILE = "logs/sample_uth.log"
 BRUTE_FORCE_THRESHOLD = 3
@@ -99,6 +100,17 @@ def main():
     print_suspicious_usernames(
         suspicious_usernames
     )
-    
+
+    generate_report(
+        "reports/security_report.txt",
+        len(logs),
+        successful_logins,
+        failed_logins,
+        failed_attempts_by_ip,
+        suspicious_ips,
+        failed_attempts_by_username,
+        suspicious_usernames
+    )
+
 if __name__ == "__main__" :
     main()

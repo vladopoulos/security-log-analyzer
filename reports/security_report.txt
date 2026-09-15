@@ -1,0 +1,20 @@
+SECURITY LOG ANALYSIS REPORT
+============================
+
+Summary
+-------
+Total log entries: 10
+Successful logins: 4
+Failed logins: 6
+Suspicious IPs
+--------------
+192.168.1.42: 3 failed attempts within the configured time window
+
+Suspicious Usernames
+--------------------
+admin: 5 failed attempts from 3 different IPs
+
+Overall Findings
+----------------
+Potential brute-force activity detected.
+Multiple IP activity detected for suspicious usernames.
