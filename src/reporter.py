@@ -1,0 +1,25 @@
+def print_summary(total_logs, successful_logins, failed_logins):
+    print("Security Log Analyzer")
+    print("=====================")
+    print(f"Total log entries: {total_logs}")
+    print(f"Successful logins: {successful_logins}")
+    print(f"Failed logins: {failed_logins}")
+
+def print_ip_analysis(failed_attempts_by_ip, suspicious_ips):
+    print("\nFailed login attempts by IP:")
+
+    for ip, timestamps in failed_attempts_by_ip.items():
+        count = len(timestamps)
+
+        if ip in suspicious_ips:
+            print(f"{ip}: {count} failed attempts - SUSPICIOUS")
+        else:
+            print(f"{ip}: {count} failed attempts")
+
+    print(f"\nSuspicious IPs detected: {len(suspicious_ips)}")
+
+def print_username_analysis(failed_attempts_by_username):
+    print("\nFailed login attempts by username:")
+
+    for username, count in failed_attempts_by_username.items():
+        print(f"{username}: {count} failed attempts")

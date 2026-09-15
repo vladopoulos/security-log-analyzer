@@ -1,4 +1,5 @@
 from parser import parse_log_line
+from reporter import print_summary, print_ip_analysis, print_username_analysis
 
 LOG_FILE = "logs/sample_uth.log"
 BRUTE_FORCE_THRESHOLD = 3
@@ -63,29 +64,24 @@ def main():
 
 
 
-    print("Security Log Analyzer")
-    print("=====================")
-    print(f"Total log entries: {len(logs)}")
-    print(f"Successful logins: {successful_logins}")
-    print(f"Failed logins: {failed_logins}")
-
-    print("\nFailed login attempts by IP:")
+    print_summary(
+        len(logs),
+        successful_logins,
+        failed_logins
+    )
 
     for ip, timestamps in failed_attempts_by_ip.items():
-        count = len(timestamps)
-
         if detect_brute_force(timestamps):
             suspicious_ips.append(ip)
-            print(f"{ip}: {count} failed attempts - SUSPICIOUS")
-        else:
-            print(f"{ip}: {count} failed attempts")
 
-    print(f"\nSuspicious IPs detected: {len(suspicious_ips)}")
+    print_ip_analysis(
+        failed_attempts_by_ip,
+        suspicious_ips
+    )
 
-    print("\nFailed login attempts by username:")
-
-    for username, count in failed_attempts_by_username.items():
-            print(f"{username}: {count} failed attempts")
+    print_username_analysis(
+        failed_attempts_by_username
+    )
 
 if __name__ == "__main__" :
     main()
