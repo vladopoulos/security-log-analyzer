@@ -10,12 +10,17 @@ MULTIPLE_IP_THRESHOLD = 3
 def load_logs(file_path):
     logs = []
 
-    with open(file_path, "r", encoding="utf-8") as file:
-        for line in file:
-            parsed_line = parse_log_line(line)
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            for line in file:
+                parsed_line = parse_log_line(line)
 
-            if parsed_line is not None:
-                logs.append(parsed_line)
+                if parsed_line is not None:
+                    logs.append(parsed_line)
+
+    except FileNotFoundError:
+        print(f"Error: Log file '{file_path}' was not found.")
+        return []
 
     return logs
 
@@ -39,6 +44,9 @@ def detect_multiple_ip_attack(ips):
 
 def main():
     logs = load_logs(LOG_FILE)
+
+    if not logs:
+        return
 
     successful_logins = 0
     failed_logins = 0
