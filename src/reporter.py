@@ -21,5 +21,18 @@ def print_ip_analysis(failed_attempts_by_ip, suspicious_ips):
 def print_username_analysis(failed_attempts_by_username):
     print("\nFailed login attempts by username:")
 
-    for username, count in failed_attempts_by_username.items():
-        print(f"{username}: {count} failed attempts")
+    for username, data in failed_attempts_by_username.items():
+        count = data["count"]
+        ips = data["ips"]
+
+        print(f"{username}: {count} failed attempts from {len(ips)} IP(s)")
+
+def print_suspicious_usernames(suspicious_usernames):
+    print("\nSuspicious usernames:")
+
+    if not suspicious_usernames:
+        print("None detected")
+        return
+
+    for username in suspicious_usernames:
+        print(f"{username}: SUSPICIOUS")

@@ -1,9 +1,10 @@
 from parser import parse_log_line
-from reporter import print_summary, print_ip_analysis, print_username_analysis
+from reporter import print_summary, print_ip_analysis, print_username_analysis, print_suspicious_usernames
 
 LOG_FILE = "logs/sample_uth.log"
 BRUTE_FORCE_THRESHOLD = 3
 BRUTE_FORCE_WINDOW_SECONDS = 60
+MULTIPLE_IP_THRESHOLD = 3
 
 def load_logs(file_path):
     logs = []
@@ -32,6 +33,9 @@ def detect_brute_force(timestamps):
 
     return False
 
+def detect_multiple_ip_attack(ips):
+    return len(ips) >= MULTIPLE_IP_THRESHOLD
+
 def main():
     logs = load_logs(LOG_FILE)
 
@@ -39,6 +43,7 @@ def main():
     failed_logins = 0
     failed_attempts_by_ip = {}
     suspicious_ips = []
+    suspicious_usernames = []
     failed_attempts_by_username = {}
 
     for log in logs:
@@ -58,9 +63,13 @@ def main():
             username = log["username"]
             
             if username not in failed_attempts_by_username:
-                failed_attempts_by_username[username] = 0
+                failed_attempts_by_username[username] = {
+                    "count": 0,
+                    "ips": set()
+                }
             
-            failed_attempts_by_username[username] += 1
+            failed_attempts_by_username[username]["count"] += 1
+            failed_attempts_by_username[username]["ips"].add(ip)
 
 
 
@@ -79,9 +88,17 @@ def main():
         suspicious_ips
     )
 
+    for username, data in failed_attempts_by_username.items():
+        if detect_multiple_ip_attack(data["ips"]):
+            suspicious_usernames.append(username)
+
     print_username_analysis(
         failed_attempts_by_username
     )
 
+    print_suspicious_usernames(
+        suspicious_usernames
+    )
+    
 if __name__ == "__main__" :
     main()
