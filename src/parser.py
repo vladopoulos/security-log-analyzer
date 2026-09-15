@@ -7,7 +7,10 @@ def parse_log_line(line):
         return None
 
     timestamp = parts[0].strip()
-    timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+    try:
+        timestamp = datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return None
 
     ip_address = parts[1].strip()
     event = parts[2].strip()
